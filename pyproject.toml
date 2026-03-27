@@ -1,0 +1,51 @@
+[project]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "Emmanouil Kritharakis", email = "emmanouil.kritharakis@satalia.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "flwr[simulation] (>=1.26.1)",
+    "flwr-datasets[vision] (>=0.6.0)",
+    "torch (==2.2.1)",
+    "torchvision (==0.17.1)",
+    "wandb (==0.25.1)",
+    "numpy (<2)",
+    "scikit-learn (==1.6.1)",
+    "pydantic (>=2.10.5,<3.0.0)",
+    "pydantic-settings (>=2.7.1,<3.0.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "click (>=8.1.8,<9.0.0)",
+    "yq (>=3.4.3,<4.0.0)",
+    "PyYAML (>=6.0.1,<7.0.0)",
+    "pre-commit (>=4.2.0,<5.0.0)",
+    "polars (>=1.38.1,<2.0.0)",
+    "google-genai (>=1.62.0,<2.0.0)",
+    "vertexai (>=1.71.1,<2.0.0)",
+    "fastapi (>=0.128.6,<0.129.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)",
+    "fastparquet (>=2025.12.0,<2026.0.0)",
+    "optuna (>=4.7.0,<5.0.0)",
+    "optuna-dashboard (>=0.20.0,<0.21.0)",
+    "skorch (>=1.3.1,<2.0.0)",
+    "pandas-stubs (>=3.0.0,<3.1.0)",
+    "pandas (>=2.2.0,<3.0.0)",
+    "google-auth (>=2.22.0,<3.0.0)",
+]
+
+[tool.poetry.scripts]
+simulation = "scripts.run_simulation:simulate"
+encode-dataset = "scripts.encode_dataset:main"
+partition-dataset = "scripts.partition_dataset:main"
+infer-fed-model = "scripts.infer_fed_model:main"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.1.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
