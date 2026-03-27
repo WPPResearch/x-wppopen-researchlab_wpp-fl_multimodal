@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "synthetic-data-processing"
+version = "0.1.0"
+description = "Scripts for processing synthetic data."
+authors = ["Your Name <you@example.com>"]
+packages = [{ include = "scripts" }]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.15"
+pandas = ">=2.2.0,<3.0.0"
+
+[tool.poetry.scripts]
+generate-subgraphs = "scripts.generate_subgraphs:main"
+generate-leaderboard = "scripts.generate_leaderboard:main"
+calculate-stats = "scripts.calculate_subgraph_stats:main"
+calculate-label-ranges = "scripts.calculate_label_ranges:main"
+calculate-mean-rel-freq = "scripts.calculate_mean_rel_freq:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
