@@ -1,5 +1,4 @@
 import ast
-import base64
 import copy
 import json
 import os
@@ -15,26 +14,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from dotenv import load_dotenv
-from google import genai
-from google.genai.types import EmbedContentConfig, HttpOptions
-from google.oauth2 import service_account
+from google.genai.types import EmbedContentConfig
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import FeatureUnion, Pipeline
 from skorch import NeuralNetClassifier
 
 load_dotenv()
-
-
-class OneHot(nn.Module):
-    def __init__(self, num_classes):
-        super().__init__()
-        self.num_classes = num_classes
-
-    def forward(self, x):
-        # Get index of max probability
-        max_idx = torch.argmax(x, dim=-1)
-        # Convert to one-hot
-        return F.one_hot(max_idx, num_classes=self.num_classes).float()
 
 
 class GeneralisedJointModel_3cls_feat_drop(nn.Module):
@@ -141,33 +126,6 @@ def collate_fn_skorch_generalised_3cls(batch, modalities):
             labels = None
 
     return {"raw_modalities_dict": batch_inputs}, labels
-
-
-class NeuralNetClassifierWithProjected(NeuralNetClassifier):
-
-    def predict(self, X, return_projected=False):
-        self.module_.eval()
-        with torch.no_grad():
-            if isinstance(X, torch.utils.data.dataset.Subset):
-                if hasattr(self, "iterator_valid__collate_fn"):
-                    X, _ = self.iterator_valid__collate_fn(X)
-                elif hasattr(self, "collate_fn"):
-                    X, _ = self.collate_fn(X)
-                else:
-                    raise RuntimeError("No collate_fn found for prediction.")
-
-                X = X["raw_modalities_dict"]
-                # print("[DEBUG] Features type:", type(X))
-            if return_projected:
-                if not isinstance(X, dict):
-                    X, _ = self.iterator_valid__collate_fn(X)
-                score, projected = self.module_.forward(X["raw_modalities_dict"], return_projected=True)
-                return score.cpu().numpy(), [p.cpu().numpy() for p in projected]
-            else:
-                y_pred = self.forward(X)
-                y_pred_labels = y_pred.argmax(dim=1).cpu().numpy()
-
-                return y_pred_labels
 
 
 class ColumnExtractor(BaseEstimator, TransformerMixin):
@@ -291,23 +249,6 @@ class EmbeddingEncoder(BaseEstimator, TransformerMixin):
         df_embeddings = pd.DataFrame(embeddings)
         df_embeddings.columns = column_names
         return df_embeddings
-
-
-def get_vertexai_client():
-    """
-    Authenticates with Google Vertex AI using a base64-encoded service account key from the environment variable
-    'GCP_SA_BASE64_ENCODED_KEY' and returns an authenticated Vertex AI client.
-    """
-    gcp_sa_key_base64_str = os.getenv("GCP_SA_BASE64_ENCODED_KEY")
-    gcp_sa_key_decoded_json_bytes = base64.b64decode(gcp_sa_key_base64_str.encode("utf-8"))
-    gcp_sa_key_decoded_json_str = gcp_sa_key_decoded_json_bytes.decode("utf-8")
-    gcp_sa_key_json = json.loads(gcp_sa_key_decoded_json_str)
-    credentials = service_account.Credentials.from_service_account_info(
-        gcp_sa_key_json, scopes=["https://www.googleapis.com/auth/cloud-platform"]
-    )
-    vertexai_client = genai.Client(http_options=HttpOptions(api_version="v1"), credentials=credentials)
-    print("Vertex AI client authenticated successfully.")
-    return vertexai_client
 
 
 def pdfm_encode(zipcodes, emb_df):
@@ -542,7 +483,6 @@ class GenAIPipeline(Pipeline):
         # 3. Get the skorch NeuralNetClassifier instance (which currently has module_=None)
         skorch_net = self.named_steps[self._skorch_step_name]
 
-        # --- CRITICAL FIX: Initialize module and criterion BEFORE loading params ---
         skorch_net.initialize_module()
         skorch_net.initialize_criterion()
         print("Skorch module and criterion re-initialized.")
