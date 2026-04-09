@@ -1,3 +1,5 @@
+import re
+from datetime import datetime
 from functools import partial
 
 import numpy as np
@@ -156,3 +158,9 @@ def test(model, X_test: pd.DataFrame, y_test: pd.DataFrame):
 
     report = classification_report(y_test, y_pred, output_dict=True)
     return report, test_loss
+
+
+def now_to_str(just_numbers=False):
+    if just_numbers:
+        return re.sub("[^0-9]", "", str(datetime.now()).split(".")[0])
+    return str(datetime.now()).split(".")[0]

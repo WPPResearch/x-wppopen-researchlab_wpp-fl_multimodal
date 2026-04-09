@@ -166,7 +166,7 @@ def embed_texts_batch(texts, batch_size=200, max_workers=2):
     return results
 
 
-def encode(df, version, partition_case, type: Literal["client", "server"], input_name: str, client_id=None):
+def encode(df, version, partition_case, type: Literal["client", "server"], input_name: str):
     # Determine output path first to check for existence
     match type:
         case "client":
@@ -242,18 +242,27 @@ def main(version: str, num_clients: int, split: str, alpha: float):
         case "_":
             raise ValueError(f"Unknown split {split}. Must be either 'homogeneous' or 'heterogeneous'")
 
+    # Validate that partition-dataset has been run first
+    client_raw_dir = Path(f"data/{version}/{partition_case}/client/raw")
+    server_raw_dir = Path(f"data/{version}/{partition_case}/server/raw")
+
+    if not client_raw_dir.exists() or not server_raw_dir.exists():
+        print(f"⚠️  WARNING: Could not find raw partitioned data for {partition_case}.")
+        print("Please run the partition-dataset script first for this configuration before encoding.")
+        return
+
     # Create (if not exists) encoded folders for clients and server
     for type in ["server", "client"]:
         encoded_path = Path(f"data/{version}/{partition_case}/{type}/encoded")
         encoded_path.mkdir(parents=True, exist_ok=True)
 
     # Create the encoded client datasets
-    for client_file_path in sorted(Path(f"data/{version}/{partition_case}/client/raw").glob("client_*_train.json*")):
+    for client_file_path in sorted(client_raw_dir.glob("client_*_train.json*")):
         client_id_match = re.search(r"client_(\d+)", client_file_path.name)
         client_id = int(client_id_match.group(1)) if client_id_match else None
         print(f"Encoding id: client {client_id}")
         df = read_dataset(client_file_path, client_file_path.stem)
-        encode(df, version, partition_case, "client", client_file_path.stem, client_id)
+        encode(df, version, partition_case, "client", client_file_path.stem)
 
     # Create the encoded server datasets
     for server_file_path in sorted(Path(f"data/{version}/{partition_case}/server/raw").glob("server_*.json*")):

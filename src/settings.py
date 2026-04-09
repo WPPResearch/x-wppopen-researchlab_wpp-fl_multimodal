@@ -145,6 +145,7 @@ class General(BaseModel):
             return self.genai_client
 
         gcp_sa_key_base64_str = os.getenv("GCP_SA_BASE64_ENCODED_KEY")
+        scopes = os.getenv("SCOPES")
         if not gcp_sa_key_base64_str:
             raise RuntimeError("GCP_SA_BASE64_ENCODED_KEY is not set")
 
@@ -152,7 +153,7 @@ class General(BaseModel):
 
         credentials = service_account.Credentials.from_service_account_info(
             gcp_sa_key_decoded_json,
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+            scopes=list(scopes),
         )
 
         self.genai_client = genai.Client(
