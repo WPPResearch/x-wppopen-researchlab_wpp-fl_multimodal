@@ -27,9 +27,6 @@ GEO_PDFM = True
 
 TEXT_EMBEDDING_MODEL = "text-embedding-005"
 TEXT_EMBEDDING_DIMENSIONALITY = 512
-# https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api#task_type
-# TEXT_EMBEDDING_TASK = "CLUSTERING"
-# https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api#task_type
 TEXT_EMBEDDING_TASK = "CLASSIFICATION"
 GEN_MODEL = "gemini-2.5-flash-lite-preview-06-17"
 MAX_RETRIES = 2

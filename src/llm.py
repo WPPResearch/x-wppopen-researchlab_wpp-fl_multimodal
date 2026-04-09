@@ -19,9 +19,7 @@ from src.schemas import IntentSignals, LLMRecommendation, PlatformSegment
 
 TEXT_EMBEDDING_MODEL = "text-embedding-005"
 TEXT_EMBEDDING_DIMENSIONALITY = 512
-TEXT_EMBEDDING_TASK = (
-    "CLUSTERING"  # https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api#task_type
-)
+TEXT_EMBEDDING_TASK = "CLUSTERING"
 GEN_MODEL = "gemini-2.5-flash-lite-preview-09-2025"
 CONTENT_CONFIG = types.GenerateContentConfig(
     temperature=1.0,

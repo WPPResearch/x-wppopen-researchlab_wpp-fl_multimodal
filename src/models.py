@@ -47,7 +47,6 @@ MODELS = {
 }
 
 param_space = {
-    # "classifier__local_epochs": {"type": "categorical", "values": [40]},
     "classifier__batch_size": {"type": "categorical", "values": [128, 256]},
     "classifier__optimizer__lr_mlp": {"type": "loguniform", "low": 1e-4, "high": 1e-3},
     "classifier__optimizer__weight_decay_mlp": {"type": "loguniform", "low": 1e-5, "high": 1e-2},

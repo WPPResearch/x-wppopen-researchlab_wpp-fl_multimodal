@@ -1,9 +1,11 @@
 # Multimodal Federated Learning Framework
 
-_Requires Python: >= 3.12_
+_Requires Python: >=3.12,<3.13_
 
 This repository contains a framework for multimodal federated learning, designed to handle and process diverse data types in a distributed manner. The federated learning simulation is powered by the [Flower (flwr)](https://flower.dev/) framework.
 
+> ⚠️ **Notice: Repository Migrated**
+> This repository has been migrated to [WPPOpen](https://github.com/WPPOpen/x-wppopen-researchlab_wpp-fl_multimodal) so it can be open-sourced. Please note that all future fixes, updates, and improvements will be made exclusively on the WPPOpen repository. 
 ## Project Structure
 
 ```
@@ -65,11 +67,7 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
 
    Create a `.env` file in the root of the project. You can use the `.env-template` file as a reference for the required variables.
 
-   After you have created the `.env` file and filled in the values, run the following command in your terminal to export the variables and make them available to your shell session:
-
-   ```bash
-   source .env
-   ```
+   The Python scripts in this repository use `python-dotenv` to automatically load variables from the `.env` file at runtime. You do not need to manually source or export them (e.g., `source .env` is not needed), which ensures cross-platform compatibility across Windows, macOS, and Linux.
 
    This ensures that the scripts can access the required API keys and configuration settings.
 
