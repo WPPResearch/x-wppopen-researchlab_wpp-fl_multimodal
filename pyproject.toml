@@ -1,10 +1,7 @@
 [project]
-name = "src"
+name = "multimodal-fl-framework"
 version = "0.1.0"
-description = ""
-authors = [
-    { name = "Emmanouil Kritharakis", email = "emmanouil.kritharakis@satalia.com" }
-]
+description = "Multimodal Federated Learning Project"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
@@ -34,6 +31,12 @@ dependencies = [
     "pandas-stubs (>=3.0.0,<3.1.0)",
     "pandas (>=2.2.0,<3.0.0)",
     "google-auth (>=2.22.0,<3.0.0)",
+]
+
+[tool.poetry]
+packages = [
+    { include = "src" },
+    { include = "scripts" }
 ]
 
 [tool.poetry.scripts]
