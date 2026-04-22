@@ -1,0 +1,35 @@
+server:
+  strategy: Mean
+  fraction_fit: 1.0
+  fraction_eval: 1.0
+  num_rounds: 4
+  server_dataset_included: false
+client:
+  num_clients: 2
+model:
+  name: GeneralisedJointModel_3cls_feat_drop
+  hidden_embed_dim: 256
+  embed_dim: 256
+  hidden_dim: 256
+  dropout_prob: 0.3
+  modality_dropout_prob: 0
+  local_epochs: 5
+  batch_size: 64
+  lr: 1e-3
+  weight_decay: 1e-4
+  optuna_n_trials: 3
+general:
+  project_name: "Multimodal FL Project"
+  use_wandb: false
+  random_seed: 42
+  text_embedding_task: classification
+  data_version: Vtest
+  data_split: homogeneous # homogeneous | heterogeneous
+  alpha: 0.1
+  one_hot_modalities:
+backend:
+  client_resources:
+    num_cpus: 2.0
+    num_gpus: 0.0
+evaluation:
+  f1_weights: {0: 0.3, 2: 0.7}
