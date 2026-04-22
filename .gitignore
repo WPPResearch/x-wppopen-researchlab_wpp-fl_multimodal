@@ -50,7 +50,6 @@ Thumbs.db
 
 # Security, Local Data, and Caches
 .env
-datasets/
 data/
 outputs/
 __pycache__/
