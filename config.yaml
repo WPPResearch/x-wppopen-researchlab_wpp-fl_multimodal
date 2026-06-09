@@ -23,7 +23,7 @@ general:
   use_wandb: false
   random_seed: 42
   text_embedding_task: classification
-  data_version: V16
+  data_version: Vtest
   data_split: homogeneous # homogeneous | heterogeneous
   alpha: 0.1
   one_hot_modalities:

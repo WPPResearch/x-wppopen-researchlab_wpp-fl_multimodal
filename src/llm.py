@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import warnings
 
 import vertexai
 from dotenv import load_dotenv
@@ -28,7 +29,10 @@ def get_vertexai_client():
             contents="Explain how AI works in a few words"
         )
     """
+    warnings.filterwarnings("ignore", category=UserWarning, module="vertexai.*")
     gcp_sa_key_base64_str = os.getenv("GCP_SA_BASE64_ENCODED_KEY")
+    if not gcp_sa_key_base64_str:
+        raise ValueError("GCP_SA_BASE64_ENCODED_KEY environment variable is not set. Please set it in your .env file.")
     scopes = os.getenv("SCOPES")
     gcp_sa_key_decoded_json_bytes = base64.b64decode(gcp_sa_key_base64_str.encode("utf-8"))
     gcp_sa_key_decoded_json_str = gcp_sa_key_decoded_json_bytes.decode("utf-8")
