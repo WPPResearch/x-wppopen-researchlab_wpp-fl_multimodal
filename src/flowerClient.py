@@ -37,7 +37,7 @@ class FlowerClient(NumPyClient):
         self.study = optuna.create_study(
             direction="maximize",
             sampler=optuna.samplers.GPSampler(),
-            storage="sqlite:///../db.sqlite3",
+            storage=f"sqlite:///../db_{self.partition_id}.sqlite3",
             study_name=model_nickname + "_v" + str(model_version) + "_" + datetime.now().strftime("%Y%m%d%H%M%S"),
             load_if_exists=True,
         )
