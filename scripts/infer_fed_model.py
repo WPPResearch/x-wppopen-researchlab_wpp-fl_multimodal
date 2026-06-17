@@ -45,7 +45,11 @@ def find_latest_time_folder(date_dir: Path) -> Path:
 
 
 def load_run_config(base_dir: Path, run_path: Path) -> dict:
-    # Security Check: Ensure the resolved path is inside the base_dir
+    # Resolve paths to handle '..' and symlinks, and to satisfy security scanners
+    base_dir = base_dir.resolve()
+    run_path = run_path.resolve()
+
+    # Security Check: Ensure the path is inside the base_dir
     try:
         run_path.relative_to(base_dir)
     except ValueError:
