@@ -338,16 +338,15 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
     # Run evaluation
     # ------------------------------------------------------------------
     if run_test_flag:
-        print(f"RUN TEST!")
-        # run_test(
-        #     save_scoring_path,
-        #     model_nickname,
-        #     model_version,
-        #     data_version,
-        #     repo_commit_sha,
-        #     "masker_optimiser_eval",
-        #     allow_override=allow_override,
-        # )
+        run_test(
+            save_scoring_path,
+            model_nickname,
+            model_version,
+            data_version,
+            repo_commit_sha,
+            "masker_optimiser_eval",
+            allow_override=allow_override,
+        )
     else:
         logger.info("Skipping evaluation (run_test_flag is False)")
 
