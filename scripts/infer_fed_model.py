@@ -44,19 +44,15 @@ def find_latest_time_folder(date_dir: Path) -> Path:
     return max(time_folders)
 
 
-def load_run_config(run_path: Path, base_dir: Path) -> dict:
-    # Resolve the path to handle '..' and symlinks
-    full_path = run_path.resolve()
-    base_dir = base_dir.resolve()
-
+def load_run_config(base_dir: Path, run_path: Path) -> dict:
     # Security Check: Ensure the resolved path is inside the base_dir
     try:
-        full_path.relative_to(base_dir)
+        run_path.relative_to(base_dir)
     except ValueError:
         logger.error(f"Security Alert: Attempted path traversal! {run_path} is outside {base_dir}")
         raise ValueError(f"Invalid run path: {run_path}")
 
-    config_path = full_path / "config.yaml"
+    config_path = run_path / "config.yaml"
     if not config_path.is_file():
         raise FileNotFoundError(f"config.yaml not found in {run_path}")
     with open(config_path) as f:
@@ -213,7 +209,7 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
 
     logger.info("🚀 Starting inference")
 
-    outputs_dir = Path("./outputs")
+    outputs_dir = Path("./outputs").resolve()
     model_name = settings.model.name
 
     # ------------------------------------------------------------------
@@ -229,14 +225,14 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
     # Validate outputs directory
     # ------------------------------------------------------------------
     if not outputs_dir.exists():
-        logger.error(f"outputs_dir does not exist: {outputs_dir.resolve()}")
-        raise FileNotFoundError(f"outputs_dir does not exist: {outputs_dir.resolve()}")
+        logger.error(f"outputs_dir does not exist: {outputs_dir}")
+        raise FileNotFoundError(f"outputs_dir does not exist: {outputs_dir}")
 
     if not outputs_dir.is_dir():
-        logger.error(f"outputs_dir is not a directory: {outputs_dir.resolve()}")
-        raise NotADirectoryError(f"outputs_dir is not a directory: {outputs_dir.resolve()}")
+        logger.error(f"outputs_dir is not a directory: {outputs_dir}")
+        raise NotADirectoryError(f"outputs_dir is not a directory: {outputs_dir}")
 
-    logger.info(f"Searching trained models in: {outputs_dir.resolve()}")
+    logger.info(f"Searching trained models in: {outputs_dir}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # ------------------------------------------------------------------
@@ -251,7 +247,7 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
         logger.info(f"Using provided run folder: {run_folder}")
         logger.info(f"Best FL model selection → ({best_model_path.name})")
 
-        run_config = load_run_config(run_path, outputs_dir)
+        run_config = load_run_config(outputs_dir, run_path.resolve())
         data_version = run_config.get("general", {}).get("data_version", data_version)
         settings.general.data_version = data_version
         settings.general.data_split = run_config.get("general", {}).get("data_split", settings.general.data_split)
@@ -264,7 +260,7 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
         best_model_path = find_best_model(latest_time)
         logger.info(f"Best FL model selection → {latest_date.name}/{latest_time.name} " f"({best_model_path.name})")
 
-        run_config = load_run_config(latest_time, outputs_dir)
+        run_config = load_run_config(outputs_dir, latest_time.resolve())
         data_version = run_config.get("general", {}).get("data_version", data_version)
         settings.general.data_version = data_version
         settings.general.data_split = run_config.get("general", {}).get("data_split", settings.general.data_split)
