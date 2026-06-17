@@ -14,6 +14,7 @@ import torch
 import yaml
 from loguru import logger
 from skorch import NeuralNetClassifier
+from werkzeug.security import safe_join
 
 from src.models import MODELS
 from src.settings import settings
@@ -48,7 +49,13 @@ def load_run_config(base_dir: Path, run_path: Path) -> dict:
     # Resolve paths to handle '..' and symlinks, and to satisfy security scanners
     base_dir = base_dir.resolve()
     run_path = run_path.resolve()
-    config_path = (run_path / "config.yaml").resolve()
+
+    config_path_str = safe_join(str(run_path), "config.yaml")
+    if config_path_str is None:
+        logger.error(f"Security Alert: Invalid config path construction from {run_path}")
+        raise ValueError(f"Invalid run path: {run_path}")
+
+    config_path = Path(config_path_str).resolve()
 
     # Security Check: Ensure the final config path is inside the base_dir
     try:
@@ -245,7 +252,12 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
     # ------------------------------------------------------------------
     data_version = settings.general.data_version
     if run_folder:
-        run_path = outputs_dir / run_folder
+        run_path_str = safe_join(str(outputs_dir), run_folder)
+        if run_path_str is None:
+            logger.error(f"Security Alert: Invalid run folder provided: {run_folder}")
+            raise ValueError(f"Invalid run folder: {run_folder}")
+        run_path = Path(run_path_str)
+
         if not run_path.is_dir():
             raise NotADirectoryError(f"Provided run folder does not exist or is not a directory: {run_path}")
         best_model_path = find_best_model(run_path)
@@ -316,7 +328,21 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
     )
 
     datasets_base_dir = Path("datasets").resolve()
-    save_scoring_path = (datasets_base_dir / data_version / "scoring" / filename).resolve()
+
+    # Safely construct the scoring path
+    scoring_dir_str = safe_join(str(datasets_base_dir), data_version)
+    if scoring_dir_str is None:
+        raise ValueError(f"Invalid data_version: {data_version}")
+
+    scoring_subdir_str = safe_join(scoring_dir_str, "scoring")
+    if scoring_subdir_str is None:
+        raise ValueError("Invalid scoring subdirectory construction")
+
+    save_scoring_path_str = safe_join(scoring_subdir_str, filename)
+    if save_scoring_path_str is None:
+        raise ValueError(f"Invalid filename: {filename}")
+
+    save_scoring_path = Path(save_scoring_path_str).resolve()
 
     # Security Check: Ensure the save path is inside the datasets directory
     try:
