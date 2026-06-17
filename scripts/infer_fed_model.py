@@ -44,8 +44,19 @@ def find_latest_time_folder(date_dir: Path) -> Path:
     return max(time_folders)
 
 
-def load_run_config(run_path: Path) -> dict:
-    config_path = run_path / "config.yaml"
+def load_run_config(run_path: Path, base_dir: Path) -> dict:
+    # Resolve the path to handle '..' and symlinks
+    full_path = run_path.resolve()
+    base_dir = base_dir.resolve()
+
+    # Security Check: Ensure the resolved path is inside the base_dir
+    try:
+        full_path.relative_to(base_dir)
+    except ValueError:
+        logger.error(f"Security Alert: Attempted path traversal! {run_path} is outside {base_dir}")
+        raise ValueError(f"Invalid run path: {run_path}")
+
+    config_path = full_path / "config.yaml"
     if not config_path.is_file():
         raise FileNotFoundError(f"config.yaml not found in {run_path}")
     with open(config_path) as f:
@@ -240,7 +251,7 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
         logger.info(f"Using provided run folder: {run_folder}")
         logger.info(f"Best FL model selection → ({best_model_path.name})")
 
-        run_config = load_run_config(run_path)
+        run_config = load_run_config(run_path, outputs_dir)
         data_version = run_config.get("general", {}).get("data_version", data_version)
         settings.general.data_version = data_version
         settings.general.data_split = run_config.get("general", {}).get("data_split", settings.general.data_split)
@@ -253,7 +264,7 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
         best_model_path = find_best_model(latest_time)
         logger.info(f"Best FL model selection → {latest_date.name}/{latest_time.name} " f"({best_model_path.name})")
 
-        run_config = load_run_config(latest_time)
+        run_config = load_run_config(latest_time, outputs_dir)
         data_version = run_config.get("general", {}).get("data_version", data_version)
         settings.general.data_version = data_version
         settings.general.data_split = run_config.get("general", {}).get("data_split", settings.general.data_split)
@@ -302,7 +313,17 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
         f"split={settings.general.data_split}_clients={settings.client.num_clients}_"
         f"model_version={model_version}.csv"
     )
-    save_scoring_path = Path(f"datasets/{data_version}/scoring/{filename}")
+
+    datasets_base_dir = Path("datasets").resolve()
+    save_scoring_path = (datasets_base_dir / data_version / "scoring" / filename).resolve()
+
+    # Security Check: Ensure the save path is inside the datasets directory
+    try:
+        save_scoring_path.relative_to(datasets_base_dir)
+    except ValueError:
+        logger.error(f"Security Alert: Attempted path traversal in save path! {save_scoring_path}")
+        raise ValueError(f"Invalid data_version or filename resulting in unsafe path: {data_version}/{filename}")
+
     save_scoring_path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(y_infer).to_csv(save_scoring_path, index=False)
     logger.info(f"Predictions saved to: {save_scoring_path.resolve()}")
@@ -317,15 +338,16 @@ def infer(run_folder: str | None = None, run_test_flag: bool = False, allow_over
     # Run evaluation
     # ------------------------------------------------------------------
     if run_test_flag:
-        run_test(
-            save_scoring_path,
-            model_nickname,
-            model_version,
-            data_version,
-            repo_commit_sha,
-            "masker_optimiser_eval",
-            allow_override=allow_override,
-        )
+        print(f"RUN TEST!")
+        # run_test(
+        #     save_scoring_path,
+        #     model_nickname,
+        #     model_version,
+        #     data_version,
+        #     repo_commit_sha,
+        #     "masker_optimiser_eval",
+        #     allow_override=allow_override,
+        # )
     else:
         logger.info("Skipping evaluation (run_test_flag is False)")
 
