@@ -48,17 +48,18 @@ def load_run_config(base_dir: Path, run_path: Path) -> dict:
     # Resolve paths to handle '..' and symlinks, and to satisfy security scanners
     base_dir = base_dir.resolve()
     run_path = run_path.resolve()
+    config_path = (run_path / "config.yaml").resolve()
 
-    # Security Check: Ensure the path is inside the base_dir
+    # Security Check: Ensure the final config path is inside the base_dir
     try:
-        run_path.relative_to(base_dir)
+        config_path.relative_to(base_dir)
     except ValueError:
-        logger.error(f"Security Alert: Attempted path traversal! {run_path} is outside {base_dir}")
+        logger.error(f"Security Alert: Attempted path traversal! {config_path} is outside {base_dir}")
         raise ValueError(f"Invalid run path: {run_path}")
 
-    config_path = run_path / "config.yaml"
     if not config_path.is_file():
         raise FileNotFoundError(f"config.yaml not found in {run_path}")
+
     with open(config_path) as f:
         return yaml.safe_load(f)
 
