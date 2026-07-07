@@ -3,6 +3,7 @@ import os
 import random
 import time
 import warnings
+from pathlib import Path
 
 from dotenv import load_dotenv
 from flwr.simulation import run_simulation
@@ -21,6 +22,7 @@ os.environ["RAY_USAGE_STATS_ENABLED"] = "0"
 os.environ["RAY_ENABLE_PROMETHEUS_EXPORT"] = "0"
 os.environ["GLOG_minloglevel"] = "3"  # 0:INFO, 1:WARN, 2:ERROR, 3:FATAL
 os.environ["RAY_BACKEND_LOG_LEVEL"] = "fatal"
+os.environ["FL_PROJECT_ROOT"] = str(Path(__file__).parent.parent)
 
 # Silence all Python warnings
 warnings.filterwarnings("ignore")

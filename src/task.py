@@ -1,7 +1,10 @@
+import os
 import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
+
+PROJECT_ROOT = Path(os.environ["FL_PROJECT_ROOT"]) if "FL_PROJECT_ROOT" in os.environ else Path(__file__).parent.parent
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -36,11 +39,11 @@ def load_synthetic_data(
         case _:
             raise ValueError(f"Invalid split {data_split}")
 
-    # Determine file path
+    # Determine file path (absolute so Ray workers can resolve it)
     if partition_id is None:
-        file_path = f"data/{version}/{subfolder}/server/encoded/server_test_emb_pdfm_{text_embedding_task}.parquet"
+        file_path = PROJECT_ROOT / f"data/{version}/{subfolder}/server/encoded/server_test_emb_pdfm_{text_embedding_task}.parquet"
     else:
-        file_path = (
+        file_path = PROJECT_ROOT / (
             f"data/{version}/{subfolder}/client/encoded/"
             f"client_{partition_id}_train_emb_pdfm_{text_embedding_task}.parquet"
         )

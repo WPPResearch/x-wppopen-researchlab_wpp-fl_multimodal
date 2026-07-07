@@ -7,6 +7,8 @@ import uuid
 from pathlib import Path
 from typing import Union
 
+_PROJECT_ROOT = Path(os.environ["FL_PROJECT_ROOT"]) if "FL_PROJECT_ROOT" in os.environ else Path(__file__).parent.parent
+
 import joblib
 import numpy as np
 import pandas as pd
@@ -164,7 +166,7 @@ class EmbeddingEncoder(BaseEstimator, TransformerMixin):
         self.verbose = verbose
         self._client = None
         self.encoding_dimension = encoding_dimension
-        zcta_path = Path("data/zcta_embeddings.csv")
+        zcta_path = _PROJECT_ROOT / "data/zcta_embeddings.csv"
         if not zcta_path.exists():
             raise ValueError(
                 f"Required file missing: {zcta_path.resolve()}. Please ensure it exists in the data directory."

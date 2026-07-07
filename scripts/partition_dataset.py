@@ -212,7 +212,7 @@ def save_partition_heatmap(image_path: str, targets: np.ndarray, num_clients: in
 
 
 @click.command()
-@click.option("--version", required=True, help='Subfolder under datasets/, e.g. "V16"')
+@click.argument("version")
 @click.option("--datasets_dir", default="./datasets", show_default=True)
 @click.option("--train_file", default="train.json", show_default=True)
 @click.option("--test_file", default="test.json", show_default=True)

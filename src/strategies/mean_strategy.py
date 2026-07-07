@@ -143,6 +143,11 @@ class MeanStrategy(FedAvg):
     ) -> tuple[Optional[float], dict[str, Scalar]]:
         """Aggregate results from federated evaluation."""
         loss, metrics = super().aggregate_evaluate(server_round, results, failures)
+
+        # If all clients failed, loss and metrics will be None / empty.
+        if loss is None or "federated_evaluate_accuracy" not in metrics:
+            return loss, metrics or {}
+
         accuracy = metrics["federated_evaluate_accuracy"]
         if not settings.server.server_dataset_included:
             if accuracy > self.best_acc_so_far:
@@ -158,6 +163,7 @@ class MeanStrategy(FedAvg):
             results_dict={"federated_evaluate_loss": loss, **metrics},
         )
         return loss, metrics
+
 
     def aggregate_fit(
         self,
