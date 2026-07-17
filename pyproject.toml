@@ -7,7 +7,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "flwr>=1.26.1",
     "flwr-datasets[vision]>=0.6.0",
-    "torch>2.10.0",
+    "torch>=2.13.0",
     "torchvision>0.25.0",
     "wandb==0.25.1",
     "numpy<2",
